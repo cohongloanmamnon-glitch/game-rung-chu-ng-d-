@@ -9,12 +9,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Google Fonts: Mulish -->
-  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@500;700;800;900&display=swap" rel="stylesheet">
-
+  <!-- Google Fonts: Be Vietnam Pro -->
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --font-kid: 'Mulish', sans-serif;
+      --font-kid: 'Be Vietnam Pro', sans-serif;
     }
     body {
       font-family: var(--font-kid);
@@ -89,10 +88,10 @@
       padding: 10px;
     }
 
-    /* --- Ô CHỮ CÁI CHO BÉ ĐẾM (MỚI) --- */
+    /* --- Ô CHỮ CÁI CHO BÉ ĐẾM --- */
     .letter-tile {
       background: #FFFFFF;
-      border: 4px solid #60A5FA; /* Xanh dương nhạt */
+      border: 4px solid #60A5FA;
       border-radius: 16px;
       width: 50px;
       height: 60px;
@@ -101,7 +100,7 @@
       justify-content: center;
       font-size: 2.5rem;
       font-weight: 900;
-      color: #1E3A8A; /* Xanh dương đậm */
+      color: #1E3A8A;
       box-shadow: 0 5px 0 #3B82F6;
       text-transform: lowercase;
       transition: all 0.3s ease;
@@ -155,11 +154,10 @@
 <body class="p-2 sm:p-4 w-full h-full">
 
   <!-- ================= AUDIO ELEMENTS ================= -->
-  <audio id="audio-intro" src="Nhạc giới thiệu RCV.mp3" preload="auto"></audio>
-  <audio id="audio-bg" src="Nhạc Background RCV.mp3" loop preload="auto"></audio>
+  <audio id="audio-intro" src="Nhạc giới thieu RCV.mp3" preload="auto"></audio>
   <audio id="audio-correct" src="Nhạc đáp an.mp3" preload="auto"></audio>
   <audio id="audio-reward" src="phat_thuong.mp3" preload="auto"></audio>
-  <audio id="audio-10s" src="dem_nguoc.mp3" preload="auto"></audio>
+  <audio id="audio-15s" src="dem_nguoc.mp3" preload="auto"></audio>
 
   <!-- MÀN HÌNH CHỜ -->
   <div id="screen-bypass" class="fixed inset-0 bg-[#7bd3f7] z-50 flex items-center justify-center flex-col">
@@ -194,7 +192,7 @@
       </div>
       <!-- Box Đồng Hồ -->
       <div id="timer-box" class="flex items-center gap-2 font-black text-blue-800 text-2xl sm:text-4xl bg-blue-100 px-6 py-2 rounded-full border-4 border-blue-300 shadow-sm transition-all">
-        ⏳ <span id="timer-text">10</span>
+        ⏳ <span id="timer-text">20</span>
       </div>
     </div>
 
@@ -209,7 +207,7 @@
         <img id="q-image" src="" class="h-40 sm:h-56 object-contain rounded-2xl border-4 border-blue-200 shadow-md bg-blue-50 p-2">
       </div>
 
-      <!-- VÙNG HIỂN THỊ TỪ VÀNG (MỚI) -->
+      <!-- VÙNG HIỂN THỊ TỪ VÀNG -->
       <div id="q-word-container" class="hidden flex justify-center gap-2 sm:gap-3 mb-8 flex-wrap px-4">
         <!-- JS sẽ tạo các ô chữ vào đây -->
       </div>
@@ -257,12 +255,13 @@
 
   <!-- JAVASCRIPT -->
   <script>
-    /* DỮ LIỆU CÂU HỎI ĐƯỢC BỔ SUNG TRƯỜNG "qWord" VÀ "targetLetter" */
+    const TIME_LIMIT = 20; // Tùy chỉnh thời gian đếm ngược (giây)
+
     const quizData = [
       {
         text: "Chữ cái nào có 2 nét, 1 nét cong kín bên trái và 1 nét xổ bên phải?",
         qImg: null,
-        qWord: null, // Không có từ đính kèm
+        qWord: null,
         targetLetter: null,
         optType: "image",
         options: ["d.jpg", "đ.png"],
@@ -278,15 +277,6 @@
         correct: 1
       }, 
       {
-        text: "Có mấy chữ đ trong từ “đà điểu”?",
-        qImg: "đà-điểu.jpg",
-        qWord: "đà điểu", // Từ sẽ hiện ra dưới dạng các ô chữ
-        targetLetter: "đ", // Chữ cái cần nhấn mạnh khi hiện đáp án
-        optType: "text", 
-        options: ["1", "2", "3"],
-        correct: 1
-      },
-      {
         text: "Có mấy chữ d trong từ “con dế”?",
         qImg: "3.png",
         qWord: "con dế", 
@@ -294,11 +284,21 @@
         optType: "text",
         options: ["1", "2", "3"],
         correct: 0
-      }
+      },
+	{
+        text: "Có mấy chữ đ trong từ “đa đa”?",
+        qImg: "đa đa.jpg",
+        qWord: "đa đa",
+        targetLetter: "đ",
+        optType: "text", 
+        options: ["1", "2", "3"],
+        correct: 1
+      },
+
     ];
 
     let currentQ = 0;
-    let timerValue = 10;
+    let timerValue = TIME_LIMIT;
     let timerInterval = null;
     let isAnswered = false;
 
@@ -312,12 +312,10 @@
     const audio = {
       intro: document.getElementById('audio-intro'),
       bg: document.getElementById('audio-bg'),
-      timer: document.getElementById('audio-10s'),
+      timer: document.getElementById('audio-15s'),
       correct: document.getElementById('audio-correct'),
       reward: document.getElementById('audio-reward')
     };
-
-    if(audio.bg) audio.bg.volume = 0.3;
 
     function initGame() {
       screens.bypass.classList.add('hidden');
@@ -334,7 +332,11 @@
       screens.main.classList.add('hidden');
       screens.quiz.classList.remove('hidden');
       
-      if(audio.bg) audio.bg.play().catch(e => console.log(e));
+      // Đảm bảo nhạc nền chơi ở mức 30%
+      if(audio.bg) {
+        audio.bg.volume = 0.3;
+        audio.bg.play().catch(e => console.log(e));
+      }
       
       currentQ = 0;
       loadQuestion();
@@ -363,27 +365,22 @@
         imgContainer.classList.add('hidden');
       }
 
-      // XỬ LÝ Ô CHỮ CÁI (LETTER TILES)
+      // XỬ LÝ Ô CHỮ CÁI
       const wordContainer = document.getElementById('q-word-container');
       wordContainer.innerHTML = '';
       if (q.qWord) {
-        // Tách từ thành mảng các ký tự
         const chars = q.qWord.split('');
         chars.forEach((char, i) => {
           if (char === ' ') {
-            // Dấu cách giữa các từ
             const space = document.createElement('div');
             space.className = 'w-4 sm:w-8';
             wordContainer.appendChild(space);
           } else {
-            // Tạo ô chữ cái
             const tile = document.createElement('div');
-            // Thêm class slide-rise với độ trễ (delay) nhẹ để chữ hiện ra sinh động
             tile.className = 'letter-tile slide-rise';
             tile.style.animationDelay = `${i * 0.05}s`;
             tile.innerText = char;
             
-            // Gắn class đặc biệt nếu đây là chữ cái mục tiêu (d hoặc đ)
             if (q.targetLetter && char.toLowerCase() === q.targetLetter.toLowerCase()) {
               tile.classList.add('target-char');
             }
@@ -422,7 +419,7 @@
       document.getElementById('btn-show-answer').classList.add('hidden');
       document.getElementById('timer-box').classList.remove('anim-timer-urgent');
 
-      timerValue = 10;
+      timerValue = TIME_LIMIT;
       document.getElementById('timer-text').innerText = timerValue;
       startTimer();
     }
@@ -461,19 +458,14 @@
 
     function highlightAnswers() {
       const q = quizData[currentQ];
-      
-      // 1. Sáng nút đáp án đúng
       const correctBtn = document.getElementById(`opt-${q.correct}`);
       if(correctBtn) {
         correctBtn.classList.add('anim-bounce', 'bg-green-300', 'border-green-500');
       }
 
-      // 2. Sáng các ô chữ cái mục tiêu trên màn hình (đổi màu nổi bật)
       const targetLetters = document.querySelectorAll('.target-char');
       targetLetters.forEach(el => {
-        // Xóa màu mặc định
         el.classList.remove('border-[#60A5FA]', 'text-[#1E3A8A]');
-        // Thêm màu Vàng - Chữ Đỏ nổi bật để đếm
         el.classList.add('bg-yellow-300', 'border-yellow-500', 'text-rose-600', 'anim-bounce');
         el.style.boxShadow = '0 5px 0 #D97706';
       });
@@ -506,7 +498,6 @@
         if(audio.correct) audio.correct.play().catch(e => console.log(e));
         fireConfetti(clickedBtn);
         
-        // Gọi hàm để làm sáng chữ cái + ô đáp án
         highlightAnswers();
         
         feedback.className = 'block text-green-700 bg-green-100 border-4 border-green-400 px-8 py-2 rounded-full font-black text-3xl slide-rise';
@@ -515,10 +506,18 @@
         document.getElementById('btn-next').classList.remove('hidden');
         
       } else {
+        // NGĂN CHỌN LẠI KHI SAI & CHUYỂN TRẠNG THÁI
+        isAnswered = true;
+        clearInterval(timerInterval);
+        if(audio.timer) audio.timer.pause();
+
         clickedBtn.classList.add('anim-shake', 'bg-rose-200', 'border-rose-500');
-        setTimeout(() => {
-          clickedBtn.classList.remove('anim-shake', 'bg-rose-200', 'border-rose-500');
-        }, 500);
+        
+        feedback.className = 'block text-rose-700 bg-rose-100 border-4 border-rose-400 px-8 py-2 rounded-full font-black text-3xl slide-rise';
+        feedback.innerText = '❌ CHƯA CHÍNH XÁC!';
+        feedback.classList.remove('hidden');
+        
+        document.getElementById('btn-show-answer').classList.remove('hidden');
       }
     }
 
