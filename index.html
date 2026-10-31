@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rung Chuông Vàng - Bé Vui Học Chữ D Đ</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts: Be Vietnam Pro -->
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-kid: 'Be Vietnam Pro', sans-serif;
+    }
+    body {
+      font-family: var(--font-kid);
+      background: linear-gradient(135deg, #7bd3f7 0%, #a5f3fc 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- NÚT BẤM 3D --- */
+    .btn-clay {
+      border-radius: 9999px;
+      font-weight: 900;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #FFFFFF;
+      text-transform: uppercase;
+    }
+    .btn-clay:active { transform: translateY(6px) scale(0.95); }
+    
+    .btn-yellow {
+      background: linear-gradient(180deg, #FFF59D 0%, #FFD54F 40%, #FFA000 100%);
+      box-shadow: 0 8px 0 #D97706, 0 12px 20px rgba(217, 119, 6, 0.4);
+      color: #78350F;
+    }
+    .btn-yellow:active { box-shadow: 0 2px 0 #D97706; }
+    
+    .btn-blue {
+      background: linear-gradient(180deg, #A5F3FC 0%, #38BDF8 40%, #0284C7 100%);
+      box-shadow: 0 8px 0 #0369A1, 0 12px 20px rgba(2, 132, 199, 0.4);
+      color: #FFFFFF;
+    }
+    .btn-blue:active { box-shadow: 0 2px 0 #0369A1; }
+
+    .btn-green {
+      background: linear-gradient(180deg, #BBF7D0 0%, #4ADE80 40%, #16A34A 100%);
+      box-shadow: 0 8px 0 #15803D, 0 12px 20px rgba(22, 163, 74, 0.4);
+      color: #FFFFFF;
+    }
+    .btn-green:active { box-shadow: 0 2px 0 #15803D; }
+
+    /* THẺ ĐÁP ÁN */
+    .option-card {
+      background: #FFFFFF;
+      border: 5px solid #FCD34D;
+      border-radius: 28px;
+      box-shadow: 0 8px 0 #F59E0B;
+      transition: all 0.2s;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .option-card:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #F59E0B;
+    }
+    .option-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+    }
+
+    /* --- Ô CHỮ CÁI CHO BÉ ĐẾM --- */
+    .letter-tile {
+      background: #FFFFFF;
+      border: 4px solid #60A5FA;
+      border-radius: 16px;
+      width: 50px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #1E3A8A;
+      box-shadow: 0 5px 0 #3B82F6;
+      text-transform: lowercase;
+      transition: all 0.3s ease;
+    }
+    @media (min-width: 640px) {
+      .letter-tile {
+        width: 70px;
+        height: 80px;
+        font-size: 3.5rem;
+      }
+    }
+
+    /* --- ANIMATIONS --- */
+    .slide-fade { animation: fadeIn 0.5s ease forwards; }
+    .slide-rise { animation: riseUp 0.5s ease forwards; }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes riseUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-15px) rotate(-5deg); }
+      40% { transform: translateX(15px) rotate(5deg); }
+      60% { transform: translateX(-15px) rotate(-5deg); }
+      80% { transform: translateX(15px) rotate(5deg); }
+    }
+    .anim-shake { animation: shake 0.5s ease-in-out; }
+    
+    @keyframes bounceBtn {
+      0%, 100% { transform: translateY(0) scale(1); }
+      40% { transform: translateY(-20px) scale(1.1); }
+      60% { transform: translateY(10px) scale(0.95); }
+      80% { transform: translateY(-10px) scale(1.05); }
+    }
+    .anim-bounce { animation: bounceBtn 0.8s cubic-bezier(0.28, 0.84, 0.42, 1); }
+    
+    @keyframes bellSwing {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(15deg); }
+      75% { transform: rotate(-15deg); }
+    }
+    .anim-bell { animation: bellSwing 2s infinite ease-in-out; transform-origin: top center; }
+
+    @keyframes urgentPulse {
+      0%, 100% { transform: scale(1); background-color: #fee2e2; border-color: #fca5a5; }
+      50% { transform: scale(1.1); background-color: #fecaca; border-color: #ef4444; }
+    }
+    .anim-timer-urgent { animation: urgentPulse 0.5s infinite; color: #dc2626 !important; }
+    
+  </style>
+</head>
+<body class="p-2 sm:p-4 w-full h-full">
+
+  <!-- ================= AUDIO ELEMENTS ================= -->
+  <audio id="audio-intro" src="Nhạc giới thieu RCV.mp3" preload="auto"></audio>
+  <audio id="audio-correct" src="Nhạc đáp an.mp3" preload="auto"></audio>
+  <audio id="audio-reward" src="phat_thuong.mp3" preload="auto"></audio>
+  <audio id="audio-15s" src="dem_nguoc.mp3" preload="auto"></audio>
+
+  <!-- MÀN HÌNH CHỜ -->
+  <div id="screen-bypass" class="fixed inset-0 bg-[#7bd3f7] z-50 flex items-center justify-center flex-col">
+    <img src="bell.png" class="w-32 h-32 mb-8 anim-bell drop-shadow-2xl" onerror="this.style.display='none'">
+    <button onclick="initGame()" class="btn-clay btn-yellow text-3xl sm:text-5xl px-12 py-6 rounded-[40px] shadow-2xl animate-pulse">
+      ▶ MỞ TRÒ CHƠI ▶
+    </button>
+  </div>
+
+  <!-- MÀN HÌNH CHÍNH -->
+  <div id="screen-main" class="hidden w-full max-w-4xl bg-white/95 rounded-[36px] border-4 border-yellow-400 p-4 sm:p-8 shadow-2xl text-center slide-rise relative">
+    <div class="relative inline-block mb-6">
+      <img src="rung-chuong.png" alt="Rung Chuông Vàng" class="w-full max-h-[500px] object-contain rounded-3xl border-4 border-amber-300 shadow-md">
+      <img src="bell.png" class="absolute -top-10 -right-10 w-28 h-28 anim-bell" alt="Chuông">
+    </div>
+    
+    <div class="mt-4">
+      <button onclick="startGame()" class="btn-clay btn-yellow text-3xl sm:text-5xl px-16 py-5 rounded-full shadow-xl">
+        ⭐ BẮT ĐẦU ⭐
+      </button>
+    </div>
+  </div>
+
+  <!-- MÀN HÌNH CÂU HỎI -->
+  <div id="screen-quiz" class="hidden w-full max-w-5xl bg-white/95 rounded-[36px] border-4 border-yellow-400 p-4 sm:p-6 shadow-2xl relative">
+    
+    <!-- Top Bar -->
+    <div class="flex items-center justify-between border-b-4 border-amber-100 pb-4 mb-6">
+      <div class="flex items-center gap-3 font-black text-amber-800 text-xl sm:text-3xl bg-amber-100 px-6 py-2 rounded-full border-4 border-amber-300 shadow-sm">
+        <img src="bell.png" class="w-8 h-8 anim-bell" onerror="this.style.display='none'">
+        CÂU <span id="q-index">1</span>
+      </div>
+      <!-- Box Đồng Hồ -->
+      <div id="timer-box" class="flex items-center gap-2 font-black text-blue-800 text-2xl sm:text-4xl bg-blue-100 px-6 py-2 rounded-full border-4 border-blue-300 shadow-sm transition-all">
+        ⏳ <span id="timer-text">20</span>
+      </div>
+    </div>
+
+    <!-- Nội dung Câu Hỏi -->
+    <div class="flex flex-col items-center">
+      <h3 id="q-title" class="text-2xl sm:text-4xl font-extrabold text-blue-900 mb-6 text-center leading-snug drop-shadow-sm">
+        Nội dung câu hỏi
+      </h3>
+      
+      <!-- Vùng hiển thị ảnh -->
+      <div id="q-image-container" class="hidden mb-4">
+        <img id="q-image" src="" class="h-40 sm:h-56 object-contain rounded-2xl border-4 border-blue-200 shadow-md bg-blue-50 p-2">
+      </div>
+
+      <!-- VÙNG HIỂN THỊ TỪ VÀNG -->
+      <div id="q-word-container" class="hidden flex justify-center gap-2 sm:gap-3 mb-8 flex-wrap px-4">
+        <!-- JS sẽ tạo các ô chữ vào đây -->
+      </div>
+
+      <!-- Lưới đáp án -->
+      <div id="options-grid" class="w-full flex justify-center gap-4 sm:gap-8 flex-wrap">
+        <!-- JS Generate Options Here -->
+      </div>
+    </div>
+
+    <!-- Vùng phản hồi & Nút Tiếp tục -->
+    <div class="mt-8 h-24 flex flex-col items-center justify-center">
+      <div id="feedback-msg" class="hidden text-2xl font-black rounded-full px-8 py-2 mb-2"></div>
+      
+      <button id="btn-show-answer" onclick="showAnswer()" class="hidden btn-clay btn-blue text-2xl px-12 py-4 rounded-full slide-rise">
+        👁️ XEM ĐÁP ÁN
+      </button>
+
+      <button id="btn-next" onclick="nextQuestion()" class="hidden btn-clay btn-green text-2xl px-12 py-4 rounded-full slide-rise">
+        TIẾP TỤC ➔
+      </button>
+    </div>
+  </div>
+
+  <!-- MÀN HÌNH KẾT THÚC -->
+  <div id="screen-end" class="hidden w-full max-w-4xl bg-white/95 rounded-[36px] border-4 border-yellow-400 p-10 shadow-2xl text-center slide-rise">
+    <div class="relative w-48 h-48 mx-auto mb-8 flex justify-center items-center">
+      <div class="absolute inset-0 bg-yellow-300/50 rounded-full blur-2xl animate-pulse"></div>
+      <img src="bell.png" class="w-40 h-40 object-contain anim-bell z-10" onerror="this.style.display='none'">
+    </div>
+    
+    <h2 class="text-4xl sm:text-6xl font-black text-rose-500 mb-6 drop-shadow-lg">
+      CHÚC MỪNG CON!
+    </h2>
+    <p class="text-2xl sm:text-4xl font-bold text-amber-900 mb-10 bg-amber-100 inline-block px-8 py-4 rounded-3xl border-4 border-amber-300">
+      Con đã hoàn thành trò chơi xuất sắc!
+    </p>
+
+    <div class="flex justify-center">
+      <button onclick="resetGame()" class="btn-clay btn-blue text-2xl sm:text-4xl px-12 py-5 rounded-full shadow-xl">
+        🔄 CHƠI LẠI
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    const TIME_LIMIT = 20; // Tùy chỉnh thời gian đếm ngược (giây)
+
+    const quizData = [
+      {
+        text: "Chữ cái nào có 2 nét, 1 nét cong kín bên trái và 1 nét xổ bên phải trong từ: sợi dây?",
+        qImg: "sợi dây.png",
+        qWord: "sợi dây",
+        targetLetter: "d",
+        optType: "image",
+        // Đã bổ sung a.png và b.png
+        options: ["d.jpg", "đ.png", "a.png", "b.png"], 
+        correct: 0
+      },
+      {
+        text: "Chữ cái nào có 3 nét, 1 nét cong kín bên trái, một nét xổ bên phải và thêm 1 nét ngang phía trên nét sổ trong từ: hoa đào?",
+        qImg: "hoa đào.png",
+        qWord: "hoa đào",
+        targetLetter: "đ",
+        optType: "image",
+        // Đã bổ sung a.png và b.png
+        options: ["d.jpg", "đ.png", "a.png", "b.png"], 
+        correct: 1
+      }, 
+      {
+        text: "Có mấy chữ d trong từ “con dế”?",
+        qImg: "3.png",
+        qWord: "con dế", 
+        targetLetter: "d", 
+        optType: "text",
+        options: ["1", "2", "3"],
+        correct: 0
+      },
+      {
+        text: "Có mấy chữ đ trong từ “đa đa”?",
+        qImg: "đa đa.jpg",
+        qWord: "đa đa",
+        targetLetter: "đ",
+        optType: "text", 
+        options: ["1", "2", "3"],
+        correct: 1
+      }
+    ];
+
+    let currentQ = 0;
+    let timerValue = TIME_LIMIT;
+    let timerInterval = null;
+    let isAnswered = false;
+
+    const screens = {
+      bypass: document.getElementById('screen-bypass'),
+      main: document.getElementById('screen-main'),
+      quiz: document.getElementById('screen-quiz'),
+      end: document.getElementById('screen-end')
+    };
+    
+    const audio = {
+      intro: document.getElementById('audio-intro'),
+      bg: document.getElementById('audio-bg'),
+      timer: document.getElementById('audio-15s'),
+      correct: document.getElementById('audio-correct'),
+      reward: document.getElementById('audio-reward')
+    };
+
+    function initGame() {
+      screens.bypass.classList.add('hidden');
+      screens.main.classList.remove('hidden');
+      if(audio.intro) audio.intro.play().catch(e => console.log(e));
+    }
+
+    function startGame() {
+      if(audio.intro) {
+        audio.intro.pause();
+        audio.intro.currentTime = 0;
+      }
+      
+      screens.main.classList.add('hidden');
+      screens.quiz.classList.remove('hidden');
+      
+      // Đảm bảo nhạc nền chơi ở mức 30%
+      if(audio.bg) {
+        audio.bg.volume = 0.3;
+        audio.bg.play().catch(e => console.log(e));
+      }
+      
+      currentQ = 0;
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      isAnswered = false;
+      clearInterval(timerInterval);
+      if(audio.timer) {
+        audio.timer.pause();
+        audio.timer.currentTime = 0;
+      }
+      
+      const q = quizData[currentQ];
+      
+      document.getElementById('q-index').innerText = currentQ + 1;
+      document.getElementById('q-title').innerText = q.text;
+      
+      // XỬ LÝ ẢNH
+      const imgContainer = document.getElementById('q-image-container');
+      const imgElem = document.getElementById('q-image');
+      if (q.qImg) {
+        imgElem.src = q.qImg;
+        imgContainer.classList.remove('hidden');
+      } else {
+        imgContainer.classList.add('hidden');
+      }
+
+      // XỬ LÝ Ô CHỮ CÁI
+      const wordContainer = document.getElementById('q-word-container');
+      wordContainer.innerHTML = '';
+      if (q.qWord) {
+        const chars = q.qWord.split('');
+        chars.forEach((char, i) => {
+          if (char === ' ') {
+            const space = document.createElement('div');
+            space.className = 'w-4 sm:w-8';
+            wordContainer.appendChild(space);
+          } else {
+            const tile = document.createElement('div');
+            tile.className = 'letter-tile slide-rise';
+            tile.style.animationDelay = `${i * 0.05}s`;
+            tile.innerText = char;
+            
+            if (q.targetLetter && char.toLowerCase() === q.targetLetter.toLowerCase()) {
+              tile.classList.add('target-char');
+            }
+            
+            wordContainer.appendChild(tile);
+          }
+        });
+        wordContainer.classList.remove('hidden');
+        wordContainer.classList.add('flex');
+      } else {
+        wordContainer.classList.add('hidden');
+        wordContainer.classList.remove('flex');
+      }
+
+      // XỬ LÝ ĐÁP ÁN
+      const grid = document.getElementById('options-grid');
+      grid.innerHTML = '';
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.id = `opt-${index}`;
+        
+        if (q.optType === 'text') {
+          btn.className = 'option-card w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center text-6xl sm:text-7xl font-black text-blue-600';
+          btn.innerText = opt;
+        } else {
+          // Responsive kích thước ảnh để đảm bảo chứa 4 đáp án vẫn đẹp trên điện thoại
+          btn.className = 'option-card w-28 h-28 sm:w-48 sm:h-48';
+          btn.innerHTML = `<img src="${opt}" class="option-img" onerror="this.style.display='none'">`;
+        }
+        
+        btn.onclick = () => selectOption(index);
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('feedback-msg').classList.add('hidden');
+      document.getElementById('btn-next').classList.add('hidden');
+      document.getElementById('btn-show-answer').classList.add('hidden');
+      document.getElementById('timer-box').classList.remove('anim-timer-urgent');
+
+      timerValue = TIME_LIMIT;
+      document.getElementById('timer-text').innerText = timerValue;
+      startTimer();
+    }
+
+    function startTimer() {
+      if(audio.timer) audio.timer.play().catch(e => console.log(e));
+      
+      timerInterval = setInterval(() => {
+        timerValue--;
+        document.getElementById('timer-text').innerText = timerValue;
+        
+        if (timerValue <= 3 && timerValue > 0) {
+          document.getElementById('timer-box').classList.add('anim-timer-urgent');
+        }
+        
+        if (timerValue <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('timer-box').classList.remove('anim-timer-urgent');
+          if(!isAnswered) {
+            handleTimeout();
+          }
+        }
+      }, 1000);
+    }
+
+    function handleTimeout() {
+      isAnswered = true;
+      if(audio.timer) audio.timer.pause();
+      
+      const feedback = document.getElementById('feedback-msg');
+      feedback.className = 'block text-rose-600 bg-rose-100 border-4 border-rose-300 px-6 py-2 rounded-full font-bold text-2xl';
+      feedback.innerText = '⏰ Hết giờ rồi!';
+      
+      document.getElementById('btn-show-answer').classList.remove('hidden');
+    }
+
+    function highlightAnswers() {
+      const q = quizData[currentQ];
+      const correctBtn = document.getElementById(`opt-${q.correct}`);
+      if(correctBtn) {
+        correctBtn.classList.add('anim-bounce', 'bg-green-300', 'border-green-500');
+      }
+
+      const targetLetters = document.querySelectorAll('.target-char');
+      targetLetters.forEach(el => {
+        el.classList.remove('border-[#60A5FA]', 'text-[#1E3A8A]');
+        el.classList.add('bg-yellow-300', 'border-yellow-500', 'text-rose-600', 'anim-bounce');
+        el.style.boxShadow = '0 5px 0 #D97706';
+      });
+    }
+
+    function showAnswer() {
+      document.getElementById('btn-show-answer').classList.add('hidden');
+      
+      const feedback = document.getElementById('feedback-msg');
+      feedback.className = 'block text-blue-700 bg-blue-100 border-4 border-blue-300 px-6 py-2 rounded-full font-bold text-2xl slide-rise';
+      feedback.innerText = '👉 ĐÁP ÁN ĐÚNG LÀ:';
+
+      highlightAnswers();
+      document.getElementById('btn-next').classList.remove('hidden');
+    }
+
+    function selectOption(idx) {
+      if(isAnswered) return;
+      
+      const q = quizData[currentQ];
+      const isCorrect = (idx === q.correct);
+      const clickedBtn = document.getElementById(`opt-${idx}`);
+      const feedback = document.getElementById('feedback-msg');
+
+      if (isCorrect) {
+        isAnswered = true;
+        clearInterval(timerInterval);
+        if(audio.timer) audio.timer.pause();
+        
+        if(audio.correct) audio.correct.play().catch(e => console.log(e));
+        fireConfetti(clickedBtn);
+        
+        highlightAnswers();
+        
+        feedback.className = 'block text-green-700 bg-green-100 border-4 border-green-400 px-8 py-2 rounded-full font-black text-3xl slide-rise';
+        feedback.innerText = '🌟 CHÍNH XÁC!';
+        
+        document.getElementById('btn-next').classList.remove('hidden');
+        
+      } else {
+        // NGĂN CHỌN LẠI KHI SAI & CHUYỂN TRẠNG THÁI
+        isAnswered = true;
+        clearInterval(timerInterval);
+        if(audio.timer) audio.timer.pause();
+
+        clickedBtn.classList.add('anim-shake', 'bg-rose-200', 'border-rose-500');
+        
+        feedback.className = 'block text-rose-700 bg-rose-100 border-4 border-rose-400 px-8 py-2 rounded-full font-black text-3xl slide-rise';
+        feedback.innerText = '❌ CHƯA CHÍNH XÁC!';
+        feedback.classList.remove('hidden');
+        
+        document.getElementById('btn-show-answer').classList.remove('hidden');
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQ < quizData.length - 1) {
+        currentQ++;
+        screens.quiz.classList.remove('slide-rise');
+        void screens.quiz.offsetWidth; 
+        screens.quiz.classList.add('slide-fade');
+        loadQuestion();
+      } else {
+        screens.quiz.classList.add('hidden');
+        screens.end.classList.remove('hidden');
+        if(audio.bg) audio.bg.pause();
+        
+        if(audio.reward) audio.reward.play().catch(e => console.log(e));
+        fireBigConfetti();
+      }
+    }
+
+    function resetGame() {
+      if(audio.reward) {
+        audio.reward.pause();
+        audio.reward.currentTime = 0;
+      }
+      screens.end.classList.add('hidden');
+      screens.main.classList.remove('hidden');
+      if(audio.intro) audio.intro.play().catch(e => console.log(e));
+    }
+
+    function fireConfetti(target) {
+      if (typeof confetti !== 'function') return;
+      const rect = target.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+      confetti({ particleCount: 80, spread: 80, origin: { x, y } });
+    }
+
+    function fireBigConfetti() {
+      if (typeof confetti !== 'function') return;
+      let duration = 3 * 1000;
+      let end = Date.now() + duration;
+      (function frame() {
+        confetti({
+          particleCount: 5, angle: 60, spread: 55, origin: { x: 0 },
+          colors: ['#f59e0b', '#ef4444', '#10b981', '#3b82f6']
+        });
+        confetti({
+          particleCount: 5, angle: 120, spread: 55, origin: { x: 1 },
+          colors: ['#f59e0b', '#ef4444', '#10b981', '#3b82f6']
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      }());
+    }
+  </script>
+</body>
+</html>
